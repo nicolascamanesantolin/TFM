@@ -24,7 +24,7 @@ rendimiento consistente tanto en recuperación como en el proceso completo.
 
 ## Estructura
 
-mba-insight-engine/
+mba-insight-engine/ \n
 
 |-- frontend/
 
