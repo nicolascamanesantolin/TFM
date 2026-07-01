@@ -1,0 +1,582 @@
+{
+  "results": {
+    "retrieval": [
+      {
+        "name": "Hybrid (BM25 + Vector)",
+        "k": 12,
+        "recall": 0.8333,
+        "mrr": 0.2959,
+        "map": 0.3085,
+        "ndcg": 0.3936,
+        "hits": 10,
+        "total_positive": 12,
+        "true_negatives": 3,
+        "total_negative": 5,
+        "details_positive": [
+          {
+            "query": "¿Qué es la administración y cuáles son sus funciones básicas?",
+            "hit": true,
+            "rank": 2,
+            "ap": 0.5833,
+            "ndcg": 0.5706,
+            "status": "✓ hit@2"
+          },
+          {
+            "query": "¿Cómo se estructura una organización empresarial?",
+            "hit": true,
+            "rank": 2,
+            "ap": 0.5,
+            "ndcg": 0.5,
+            "status": "✓ hit@2"
+          },
+          {
+            "query": "¿Cómo se toman decisiones dentro de una organización?",
+            "hit": true,
+            "rank": 3,
+            "ap": 0.4194,
+            "ndcg": 0.5502,
+            "status": "✓ hit@3"
+          },
+          {
+            "query": "¿Cómo se realiza un análisis del entorno interno y externo?",
+            "hit": true,
+            "rank": 8,
+            "ap": 0.125,
+            "ndcg": 0.301,
+            "status": "✓ hit@8"
+          },
+          {
+            "query": "¿Qué diferencias hay entre estrategia en el sector público y privado?",
+            "hit": false,
+            "rank": null,
+            "ap": 0.0,
+            "ndcg": 0.0,
+            "status": "✗ miss"
+          },
+          {
+            "query": "¿Qué es la contabilidad financiera y cuál es su objetivo?",
+            "hit": true,
+            "rank": 2,
+            "ap": 0.5,
+            "ndcg": 0.5,
+            "status": "✓ hit@2"
+          },
+          {
+            "query": "¿Cómo se gestiona el capital de trabajo?",
+            "hit": true,
+            "rank": 5,
+            "ap": 0.2,
+            "ndcg": 0.3562,
+            "status": "✓ hit@5"
+          },
+          {
+            "query": "¿Cuáles son las principales teorías de motivación en la gestión de personas?",
+            "hit": false,
+            "rank": null,
+            "ap": 0.0,
+            "ndcg": 0.0,
+            "status": "✗ miss"
+          },
+          {
+            "query": "¿Qué es el liderazgo y qué estilos existen?",
+            "hit": true,
+            "rank": 2,
+            "ap": 0.4028,
+            "ndcg": 0.5323,
+            "status": "✓ hit@2"
+          },
+          {
+            "query": "¿Qué es la planificación estratégica y cuáles son sus etapas?",
+            "hit": true,
+            "rank": 7,
+            "ap": 0.1429,
+            "ndcg": 0.3155,
+            "status": "✓ hit@7"
+          },
+          {
+            "query": "¿En qué consiste el control de gestión y qué herramientas utiliza?",
+            "hit": true,
+            "rank": 4,
+            "ap": 0.3042,
+            "ndcg": 0.4926,
+            "status": "✓ hit@4"
+          },
+          {
+            "query": "¿Qué tipos de estructura organizativa existen y cuándo conviene cada una?",
+            "hit": true,
+            "rank": 2,
+            "ap": 0.525,
+            "ndcg": 0.6049,
+            "status": "✓ hit@2"
+          }
+        ],
+        "details_negative": [
+          {
+            "query": "¿Cuál es la receta tradicional de la paella valenciana?",
+            "correct": true,
+            "status": "✓ correcto"
+          },
+          {
+            "query": "¿Cómo funciona un motor de combustión interna?",
+            "correct": true,
+            "status": "✓ correcto"
+          },
+          {
+            "query": "¿Cuál es la distancia entre la Tierra y la Luna?",
+            "correct": false,
+            "status": "✗ falso positivo"
+          },
+          {
+            "query": "¿Cuáles son los mejores destinos turísticos de Asia?",
+            "correct": true,
+            "status": "✓ correcto"
+          },
+          {
+            "query": "¿Cómo se prepara un bizcocho de chocolate?",
+            "correct": false,
+            "status": "✗ falso positivo"
+          }
+        ]
+      },
+      {
+        "name": "Multi-query Hybrid + RRF",
+        "k": 12,
+        "recall": 1.0,
+        "mrr": 0.6069,
+        "map": 0.5241,
+        "ndcg": 0.5648,
+        "hits": 12,
+        "total_positive": 12,
+        "true_negatives": 1,
+        "total_negative": 5,
+        "details_positive": [
+          {
+            "query": "¿Qué es la administración y cuáles son sus funciones básicas?",
+            "hit": true,
+            "rank": 3,
+            "ap": 0.3042,
+            "ndcg": 0.4971,
+            "status": "✓ hit@3"
+          },
+          {
+            "query": "¿Cómo se estructura una organización empresarial?",
+            "hit": true,
+            "rank": 1,
+            "ap": 0.5286,
+            "ndcg": 0.575,
+            "status": "✓ hit@1"
+          },
+          {
+            "query": "¿Cómo se toman decisiones dentro de una organización?",
+            "hit": true,
+            "rank": 5,
+            "ap": 0.3061,
+            "ndcg": 0.4852,
+            "status": "✓ hit@5"
+          },
+          {
+            "query": "¿Cómo se realiza un análisis del entorno interno y externo?",
+            "hit": true,
+            "rank": 2,
+            "ap": 0.4167,
+            "ndcg": 0.511,
+            "status": "✓ hit@2"
+          },
+          {
+            "query": "¿Qué diferencias hay entre estrategia en el sector público y privado?",
+            "hit": true,
+            "rank": 12,
+            "ap": 0.0833,
+            "ndcg": 0.2626,
+            "status": "✓ hit@12"
+          },
+          {
+            "query": "¿Qué es la contabilidad financiera y cuál es su objetivo?",
+            "hit": true,
+            "rank": 1,
+            "ap": 0.7,
+            "ndcg": 0.6448,
+            "status": "✓ hit@1"
+          },
+          {
+            "query": "¿Cómo se gestiona el capital de trabajo?",
+            "hit": true,
+            "rank": 1,
+            "ap": 0.7784,
+            "ndcg": 0.698,
+            "status": "✓ hit@1"
+          },
+          {
+            "query": "¿Cuáles son las principales teorías de motivación en la gestión de personas?",
+            "hit": true,
+            "rank": 2,
+            "ap": 0.6083,
+            "ndcg": 0.6325,
+            "status": "✓ hit@2"
+          },
+          {
+            "query": "¿Qué es el liderazgo y qué estilos existen?",
+            "hit": true,
+            "rank": 1,
+            "ap": 1.0,
+            "ndcg": 0.7328,
+            "status": "✓ hit@1"
+          },
+          {
+            "query": "¿Qué es la planificación estratégica y cuáles son sus etapas?",
+            "hit": true,
+            "rank": 3,
+            "ap": 0.3292,
+            "ndcg": 0.5074,
+            "status": "✓ hit@3"
+          },
+          {
+            "query": "¿En qué consiste el control de gestión y qué herramientas utiliza?",
+            "hit": true,
+            "rank": 3,
+            "ap": 0.3472,
+            "ndcg": 0.4998,
+            "status": "✓ hit@3"
+          },
+          {
+            "query": "¿Qué tipos de estructura organizativa existen y cuándo conviene cada una?",
+            "hit": true,
+            "rank": 1,
+            "ap": 0.8875,
+            "ndcg": 0.7316,
+            "status": "✓ hit@1"
+          }
+        ],
+        "details_negative": [
+          {
+            "query": "¿Cuál es la receta tradicional de la paella valenciana?",
+            "correct": true,
+            "status": "✓ correcto"
+          },
+          {
+            "query": "¿Cómo funciona un motor de combustión interna?",
+            "correct": false,
+            "status": "✗ falso positivo"
+          },
+          {
+            "query": "¿Cuál es la distancia entre la Tierra y la Luna?",
+            "correct": false,
+            "status": "✗ falso positivo"
+          },
+          {
+            "query": "¿Cuáles son los mejores destinos turísticos de Asia?",
+            "correct": false,
+            "status": "✗ falso positivo"
+          },
+          {
+            "query": "¿Cómo se prepara un bizcocho de chocolate?",
+            "correct": false,
+            "status": "✗ falso positivo"
+          }
+        ]
+      },
+      {
+        "name": "Multi-query + RRF + Reranking",
+        "k": 12,
+        "recall": 1.0,
+        "mrr": 0.7133,
+        "map": 0.6335,
+        "ndcg": 0.6486,
+        "hits": 12,
+        "total_positive": 12,
+        "true_negatives": 1,
+        "total_negative": 5,
+        "details_positive": [
+          {
+            "query": "¿Qué es la administración y cuáles son sus funciones básicas?",
+            "hit": true,
+            "rank": 3,
+            "ap": 0.5103,
+            "ndcg": 0.6274,
+            "status": "✓ hit@3"
+          },
+          {
+            "query": "¿Cómo se estructura una organización empresarial?",
+            "hit": true,
+            "rank": 1,
+            "ap": 0.8875,
+            "ndcg": 0.7316,
+            "status": "✓ hit@1"
+          },
+          {
+            "query": "¿Cómo se toman decisiones dentro de una organización?",
+            "hit": true,
+            "rank": 3,
+            "ap": 0.4688,
+            "ndcg": 0.6101,
+            "status": "✓ hit@3"
+          },
+          {
+            "query": "¿Cómo se realiza un análisis del entorno interno y externo?",
+            "hit": true,
+            "rank": 1,
+            "ap": 0.6556,
+            "ndcg": 0.6291,
+            "status": "✓ hit@1"
+          },
+          {
+            "query": "¿Qué diferencias hay entre estrategia en el sector público y privado?",
+            "hit": true,
+            "rank": 2,
+            "ap": 0.5,
+            "ndcg": 0.5,
+            "status": "✓ hit@2"
+          },
+          {
+            "query": "¿Qué es la contabilidad financiera y cuál es su objetivo?",
+            "hit": true,
+            "rank": 7,
+            "ap": 0.1916,
+            "ndcg": 0.3981,
+            "status": "✓ hit@7"
+          },
+          {
+            "query": "¿Cómo se gestiona el capital de trabajo?",
+            "hit": true,
+            "rank": 4,
+            "ap": 0.3006,
+            "ndcg": 0.4895,
+            "status": "✓ hit@4"
+          },
+          {
+            "query": "¿Cuáles son las principales teorías de motivación en la gestión de personas?",
+            "hit": true,
+            "rank": 1,
+            "ap": 0.6256,
+            "ndcg": 0.668,
+            "status": "✓ hit@1"
+          },
+          {
+            "query": "¿Qué es el liderazgo y qué estilos existen?",
+            "hit": true,
+            "rank": 1,
+            "ap": 0.9751,
+            "ndcg": 0.8432,
+            "status": "✓ hit@1"
+          },
+          {
+            "query": "¿Qué es la planificación estratégica y cuáles son sus etapas?",
+            "hit": true,
+            "rank": 1,
+            "ap": 0.9909,
+            "ndcg": 0.8394,
+            "status": "✓ hit@1"
+          },
+          {
+            "query": "¿En qué consiste el control de gestión y qué herramientas utiliza?",
+            "hit": true,
+            "rank": 1,
+            "ap": 0.7962,
+            "ndcg": 0.7244,
+            "status": "✓ hit@1"
+          },
+          {
+            "query": "¿Qué tipos de estructura organizativa existen y cuándo conviene cada una?",
+            "hit": true,
+            "rank": 1,
+            "ap": 0.7001,
+            "ndcg": 0.722,
+            "status": "✓ hit@1"
+          }
+        ],
+        "details_negative": [
+          {
+            "query": "¿Cuál es la receta tradicional de la paella valenciana?",
+            "correct": true,
+            "status": "✓ correcto"
+          },
+          {
+            "query": "¿Cómo funciona un motor de combustión interna?",
+            "correct": false,
+            "status": "✗ falso positivo"
+          },
+          {
+            "query": "¿Cuál es la distancia entre la Tierra y la Luna?",
+            "correct": false,
+            "status": "✗ falso positivo"
+          },
+          {
+            "query": "¿Cuáles son los mejores destinos turísticos de Asia?",
+            "correct": false,
+            "status": "✗ falso positivo"
+          },
+          {
+            "query": "¿Cómo se prepara un bizcocho de chocolate?",
+            "correct": false,
+            "status": "✗ falso positivo"
+          }
+        ]
+      }
+    ],
+    "end_to_end": {
+      "answer_relevancy": 0.5833,
+      "citation_rate": 1.0,
+      "bleu": 0.0298,
+      "rouge_l": 0.1013,
+      "meteor": 0.064,
+      "semantic_sim": 0.7401,
+      "ignorance_rate": 1.0,
+      "answer_hits": 7,
+      "citation_hits": 12,
+      "ignorance_hits": 5,
+      "total_positive": 12,
+      "total_negative": 5,
+      "n_with_reference": 12,
+      "details_positive": [
+        {
+          "query": "¿Qué es la administración y cuáles son sus funciones básicas?",
+          "relevant": false,
+          "has_citations": true,
+          "bleu": 0.0304,
+          "rouge_l": 0.0962,
+          "meteor": 0.0808,
+          "semantic_sim": 0.6441,
+          "response_preview": "No dispongo de evidencia suficiente en los documentos indexados. (la respuesta del modelo no incluyó citas [DOC n] válidas).\n\n---\nFuentes (metadatos del índice):\n- [DOC 1] Principios de Adinistración Financiera.pdf | Página 58\n- [DOC 2] Contabilidad financiera I.pdf | Página 160\n- [DOC 3] Los RRHH c"
+        },
+        {
+          "query": "¿Cómo se estructura una organización empresarial?",
+          "relevant": true,
+          "has_citations": true,
+          "bleu": 0.0295,
+          "rouge_l": 0.0751,
+          "meteor": 0.0115,
+          "semantic_sim": 0.8118
+        },
+        {
+          "query": "¿Cómo se toman decisiones dentro de una organización?",
+          "relevant": true,
+          "has_citations": true,
+          "bleu": 0.0165,
+          "rouge_l": 0.0542,
+          "meteor": -0.0254,
+          "semantic_sim": 0.843
+        },
+        {
+          "query": "¿Cómo se realiza un análisis del entorno interno y externo?",
+          "relevant": true,
+          "has_citations": true,
+          "bleu": 0.0456,
+          "rouge_l": 0.0982,
+          "meteor": 0.1234,
+          "semantic_sim": 0.7713
+        },
+        {
+          "query": "¿Qué diferencias hay entre estrategia en el sector público y privado?",
+          "relevant": false,
+          "has_citations": true,
+          "bleu": 0.0,
+          "rouge_l": 0.1094,
+          "meteor": 0.076,
+          "semantic_sim": 0.6125,
+          "response_preview": "No dispongo de evidencia suficiente en los documentos indexados. (la respuesta del modelo no incluyó citas [DOC n] válidas).\n\n---\nFuentes (metadatos del índice):\n- [DOC 1] Los RRHH como parte fundamental en las empresas (TFG).pdf | Página 10\n- [DOC 2] Factores determinantes del éxito en la empresa.p"
+        },
+        {
+          "query": "¿Qué es la contabilidad financiera y cuál es su objetivo?",
+          "relevant": true,
+          "has_citations": true,
+          "bleu": 0.0304,
+          "rouge_l": 0.102,
+          "meteor": 0.0389,
+          "semantic_sim": 0.6642
+        },
+        {
+          "query": "¿Cómo se gestiona el capital de trabajo?",
+          "relevant": true,
+          "has_citations": true,
+          "bleu": 0.04,
+          "rouge_l": 0.1018,
+          "meteor": 0.0212,
+          "semantic_sim": 0.8431
+        },
+        {
+          "query": "¿Cuáles son las principales teorías de motivación en la gestión de personas?",
+          "relevant": false,
+          "has_citations": true,
+          "bleu": 0.0396,
+          "rouge_l": 0.1667,
+          "meteor": 0.1366,
+          "semantic_sim": 0.6707,
+          "response_preview": "No dispongo de evidencia suficiente en los documentos indexados. (la respuesta del modelo no incluyó citas [DOC n] válidas).\n\n---\nFuentes (metadatos del índice):\n- [DOC 1] Fundamentos de marketing.pdf | Página 73\n- [DOC 2] La gestión empresarial en micro, pequeñas y medianas empresas.pdf | Página 0\n"
+        },
+        {
+          "query": "¿Qué es el liderazgo y qué estilos existen?",
+          "relevant": true,
+          "has_citations": true,
+          "bleu": 0.0685,
+          "rouge_l": 0.1446,
+          "meteor": 0.1057,
+          "semantic_sim": 0.8856
+        },
+        {
+          "query": "¿Qué es la planificación estratégica y cuáles son sus etapas?",
+          "relevant": true,
+          "has_citations": true,
+          "bleu": 0.0568,
+          "rouge_l": 0.1279,
+          "meteor": 0.1615,
+          "semantic_sim": 0.8466
+        },
+        {
+          "query": "¿En qué consiste el control de gestión y qué herramientas utiliza?",
+          "relevant": false,
+          "has_citations": true,
+          "bleu": 0.0,
+          "rouge_l": 0.063,
+          "meteor": 0.021,
+          "semantic_sim": 0.6535,
+          "response_preview": "No dispongo de evidencia suficiente en los documentos indexados. (la respuesta del modelo no incluyó citas [DOC n] válidas).\n\n---\nFuentes (metadatos del índice):\n- [DOC 1] Los RRHH como parte fundamental en las empresas (TFG).pdf | Página 13\n- [DOC 2] Dirección estratégica en la Administración Públi"
+        },
+        {
+          "query": "¿Qué tipos de estructura organizativa existen y cuándo conviene cada una?",
+          "relevant": false,
+          "has_citations": true,
+          "bleu": 0.0,
+          "rouge_l": 0.0769,
+          "meteor": 0.017,
+          "semantic_sim": 0.6354,
+          "response_preview": "No dispongo de evidencia suficiente en los documentos indexados. (la respuesta del modelo no incluyó citas [DOC n] válidas).\n\n---\nFuentes (metadatos del índice):\n- [DOC 1] Fundamentos de la Administración de Organizaciones.pdf | Página 90\n- [DOC 2] Los RRHH como parte fundamental en las empresas (TF"
+        }
+      ],
+      "details_negative": [
+        {
+          "query": "¿Cuál es la receta tradicional de la paella valenciana?",
+          "admits_ignorance": true,
+          "status": "✓ correcto"
+        },
+        {
+          "query": "¿Cómo funciona un motor de combustión interna?",
+          "admits_ignorance": true,
+          "status": "✓ correcto"
+        },
+        {
+          "query": "¿Cuál es la distancia entre la Tierra y la Luna?",
+          "admits_ignorance": true,
+          "status": "✓ correcto"
+        },
+        {
+          "query": "¿Cuáles son los mejores destinos turísticos de Asia?",
+          "admits_ignorance": true,
+          "status": "✓ correcto"
+        },
+        {
+          "query": "¿Cómo se prepara un bizcocho de chocolate?",
+          "admits_ignorance": true,
+          "status": "✓ correcto"
+        }
+      ]
+    },
+    "eval_set_size": {
+      "positive": 12,
+      "negative": 5
+    }
+  },
+  "timestamp": "2026-07-01T17:48:08.296959",
+  "duration": 5663.346483,
+  "verbose": false,
+  "queries_used": 17
+}

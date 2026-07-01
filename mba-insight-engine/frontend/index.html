@@ -1,0 +1,1831 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MBA Insight Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg0:#080b10;
+  --bg1:#0d1118;
+  --bg2:#121820;
+  --bg3:#1a2030;
+  --border:#1e2535;
+  --border2:#2a3348;
+  --gold:#e8a320;
+  --gold2:#fbc44a;
+  --gold-dim:#2a1f06;
+  --blue:#4a8fff;
+  --green:#3ecf8e;
+  --green-dim:#0b2018;
+  --text0:#eef0f3;
+  --text1:#9aa3b0;
+  --text2:#4e5968;
+  --mono:'DM Mono',monospace;
+  --sans:'Syne',sans-serif;
+  --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg0);color:var(--text0);font-family:var(--sans);overflow:hidden}
+
+/* ── Layout ── */
+.app{display:flex;height:100vh}
+.sidebar{width:280px;background:var(--bg1);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--bg0)}
+
+/* ── Sidebar ── */
+.sb-head{padding:22px 18px 16px;border-bottom:1px solid var(--border)}
+.sb-logo{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+.sb-icon{width:34px;height:34px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.sb-icon svg{width:16px;height:16px}
+.sb-brand{font-size:13px;font-weight:600;color:var(--text0);letter-spacing:0.01em}
+.sb-sub{font-size:9px;font-weight:400;color:var(--text2);letter-spacing:0.12em;text-transform:uppercase;font-family:var(--mono);margin-top:2px}
+.sb-nav{padding:14px 10px;flex:1}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--radius);cursor:pointer;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:2px;transition:all 0.15s;letter-spacing:0.02em;user-select:none}
+.nav-item:hover{background:var(--bg2);color:var(--text1)}
+.nav-item.active{background:var(--bg3);color:var(--gold);border-left:2px solid var(--gold)}
+.nav-item svg{width:13px;height:13px;flex-shrink:0}
+
+.sb-docs{padding:12px 16px;border-top:1px solid var(--border);max-height:400px;overflow-y:auto}
+.sb-label{font-size:9px;font-weight:500;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;font-family:var(--mono);margin-bottom:8px}
+.doc-list{display:flex;flex-direction:column;gap:4px}
+.doc-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;background:var(--bg2);border:1px solid var(--border);transition:border 0.15s;position:relative}
+.doc-item:hover{border-color:var(--border2)}
+.doc-badge{width:20px;height:20px;background:#0f2010;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.doc-badge span{font-size:7px;font-weight:500;color:#3ecf8e;font-family:var(--mono)}
+.doc-name{font-size:10px;color:var(--text1);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.doc-item.uploading .doc-badge{background:var(--gold-dim)}
+.doc-item.uploading .doc-badge span{color:var(--gold)}
+.doc-item.processed .doc-badge{background:var(--green-dim)}
+.doc-item.processed .doc-badge span{color:var(--green)}
+
+/* Botones de acción en documentos */
+.doc-actions{display:flex;gap:4px;flex-shrink:0}
+.doc-btn{padding:3px 8px;font-size:9px;font-family:var(--mono);border:1px solid var(--border2);border-radius:4px;cursor:pointer;transition:all 0.15s;background:transparent;color:var(--text2)}
+.doc-btn:hover{border-color:var(--gold);color:var(--gold)}
+.doc-btn.process{color:var(--blue);border-color:var(--blue)}
+.doc-btn.process:hover{background:rgba(74,143,255,0.1)}
+.doc-btn.delete{color:#f87171;border-color:#f87171}
+.doc-btn.delete:hover{background:rgba(248,113,113,0.1)}
+.doc-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+.upload-btn{margin:10px 16px 0;padding:8px;background:transparent;border:1px dashed var(--border2);border-radius:8px;color:var(--text2);font-size:11px;font-family:var(--sans);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;width:calc(100% - 32px)}
+.upload-btn:hover{border-color:var(--gold);color:var(--gold)}
+#file-input{display:none}
+
+.sb-footer{padding:10px 10px 14px;border-top:1px solid var(--border)}
+.footer-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:11px;color:var(--text2);transition:color 0.15s;letter-spacing:0.02em}
+.footer-item:hover{color:var(--text1)}
+.footer-item svg{width:13px;height:13px}
+
+/* ── Topbar ── */
+.topbar{padding:14px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg1);flex-shrink:0}
+.tb-left{display:flex;align-items:center;gap:14px}
+.tb-title{font-size:15px;font-weight:600;color:var(--text0);letter-spacing:0.01em}
+.live-badge{display:flex;align-items:center;gap:6px;background:var(--green-dim);border:1px solid #1a4a30;padding:4px 10px;border-radius:20px;font-size:9px;color:var(--green);letter-spacing:0.1em;font-family:var(--mono)}
+.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+.tb-right{display:flex;gap:6px}
+.icon-btn{width:30px;height:30px;border-radius:7px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);transition:all 0.15s}
+.icon-btn:hover{border-color:var(--border2);color:var(--text1)}
+.icon-btn svg{width:13px;height:13px}
+
+/* ── Chat ── */
+.chat{flex:1;overflow-y:auto;padding:24px 22px;display:flex;flex-direction:column;gap:18px;scroll-behavior:smooth}
+.chat::-webkit-scrollbar{width:4px}
+.chat::-webkit-scrollbar-track{background:transparent}
+.chat::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+.msg-user-wrap{display:flex;justify-content:flex-end}
+.msg-user{max-width:60%;background:var(--bg3);border:1px solid var(--border2);border-radius:12px 12px 2px 12px;padding:12px 16px;font-size:13px;color:var(--text0);line-height:1.6;font-family:var(--mono);font-weight:400}
+.msg-meta{font-size:9px;color:var(--text2);letter-spacing:0.08em;font-family:var(--mono);margin-top:4px;text-align:right}
+
+.msg-ai-wrap{display:flex;flex-direction:column;max-width:82%;gap:4px}
+.msg-ai{background:var(--bg1);border:1px solid var(--border);border-left:2px solid var(--gold);border-radius:2px 12px 12px 12px;padding:16px 18px;position:relative;overflow:hidden}
+.msg-ai::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--gold) 0%,transparent 60%)}
+.ai-ref{font-size:10px;color:var(--gold);margin-bottom:10px;font-family:var(--mono);display:flex;align-items:center;gap:6px}
+.ai-ref-file{text-decoration:underline;cursor:pointer;color:var(--gold2)}
+.ai-body{font-size:13px;color:var(--text1);line-height:1.7;font-family:var(--mono)}
+.ai-body strong{color:var(--text0);font-weight:500}
+
+.insight-box{background:var(--green-dim);border:1px solid #1a4a30;border-radius:8px;padding:12px 14px;margin:12px 0}
+.insight-label{font-size:9px;color:var(--green);font-weight:500;letter-spacing:0.1em;text-transform:uppercase;font-family:var(--mono);margin-bottom:6px}
+.insight-text{font-size:12px;color:#7dd3a8;font-style:italic;line-height:1.6;font-family:var(--mono)}
+
+.sources{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap}
+.source-chip{display:flex;align-items:center;gap:5px;padding:4px 10px;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;font-size:10px;color:#8b9cf4;cursor:pointer;font-family:var(--mono);transition:border 0.15s}
+.source-chip:hover{border-color:#8b9cf4}
+.source-chip svg{width:9px;height:9px}
+.source-chip.session-doc{color:var(--gold2);border-color:var(--gold)}
+.source-chip.session-doc svg{stroke:var(--gold)}
+
+/* ── Typing indicator ── */
+.typing{display:flex;align-items:center;gap:5px;padding:12px 16px;background:var(--bg1);border:1px solid var(--border);border-left:2px solid var(--gold);border-radius:2px 12px 12px 12px;width:fit-content}
+.typing span{width:5px;height:5px;background:var(--gold);border-radius:50%;animation:bounce 1.2s infinite}
+.typing span:nth-child(2){animation-delay:0.2s}
+.typing span:nth-child(3){animation-delay:0.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+/* ── Input ── */
+.input-area{padding:14px 22px;border-top:1px solid var(--border);background:var(--bg1);flex-shrink:0}
+.input-wrap{display:flex;align-items:center;gap:8px;background:var(--bg0);border:1px solid var(--border2);border-radius:var(--radius);padding:9px 12px;transition:border 0.2s}
+.input-wrap:focus-within{border-color:var(--gold)}
+.attach-btn{color:var(--text2);cursor:pointer;flex-shrink:0;transition:color 0.15s}
+.attach-btn:hover{color:var(--gold)}
+.attach-btn svg{width:15px;height:15px}
+.chat-input{flex:1;background:transparent;border:none;outline:none;font-size:13px;color:var(--text0);font-family:var(--mono);caret-color:var(--gold)}
+.chat-input::placeholder{color:var(--text2)}
+.send-btn{width:30px;height:30px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all 0.15s;border:none}
+.send-btn:hover{background:var(--gold2);transform:scale(1.05)}
+.send-btn:active{transform:scale(0.97)}
+.send-btn svg{width:13px;height:13px}
+.send-btn:disabled{background:var(--bg3);cursor:not-allowed;transform:none}
+
+.footer-bar{padding:6px 22px 8px;font-size:8px;color:var(--text2);letter-spacing:0.12em;font-family:var(--mono);text-transform:uppercase}
+
+/* ── Scrollbar for sidebar ── */
+.sb-docs::-webkit-scrollbar,.chat::-webkit-scrollbar{width:3px}
+.sb-docs::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── Toast ── */
+.toast{position:fixed;top:20px;right:20px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 16px;font-size:12px;color:var(--text1);font-family:var(--mono);z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none}
+.toast.show{opacity:1}
+
+/* ── Evaluación ── */
+.analytics-view {flex: 1;overflow-y: auto;padding: 24px 32px;display: flex;flex-direction: column;}
+.analytics-header {display: flex;justify-content: space-between;align-items: center;margin-bottom: 24px;padding-bottom: 16px;border-bottom: 1px solid var(--border);}
+.analytics-title {font-size: 20px;font-weight: 600;color: var(--text0);letter-spacing: 0.01em;}
+.run-eval-btn {display: flex;align-items: center;gap: 8px;padding: 10px 18px;background: var(--gold);color: var(--bg0);border: none;border-radius: 8px;font-size: 12px;font-weight: 500;font-family: var(--sans);cursor: pointer;transition: all 0.15s;}
+.run-eval-btn:hover {background: var(--gold2);transform: translateY(-1px);}
+.run-eval-btn:disabled {background: var(--bg3);color: var(--text2);cursor: not-allowed;transform: none;}
+.run-eval-btn.running {background: var(--blue);}
+.run-eval-btn svg {width: 14px;height: 14px;}
+.section-title {font-size: 15px;font-weight: 600;color: var(--gold);margin: 32px 0 16px;padding-bottom: 8px;border-bottom: 1px solid var(--border);}
+.metrics-grid {display: grid;grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));gap: 16px;margin-bottom: 24px;}
+.metric-card {background: var(--bg1);border: 1px solid var(--border);border-left: 3px solid var(--gold);border-radius: 8px;padding: 16px 18px;}
+.metric-label {font-size: 10px;color: var(--text2);text-transform: uppercase;letter-spacing: 0.1em;font-family: var(--mono);margin-bottom: 8px;}
+.metric-value {font-size: 36px;font-weight: 600;color: var(--gold);font-family: var(--mono);line-height: 1;}
+.metric-sub {font-size: 11px;color: var(--text1);font-family: var(--mono);margin-top: 6px;}
+.comparison-table {background: var(--bg1);border: 1px solid var(--border);border-radius: 8px;overflow: hidden;margin-bottom: 24px;}
+.comparison-table table {width: 100%;border-collapse: collapse;}
+.comparison-table th {background: var(--bg2);color: var(--text0);font-size: 11px;font-weight: 500;text-transform: uppercase;letter-spacing: 0.08em;padding: 14px 16px;text-align: left;font-family: var(--mono);border-bottom: 1px solid var(--border);}
+.comparison-table td {padding: 14px 16px;border-top: 1px solid var(--border);font-size: 12px;color: var(--text1);font-family: var(--mono);}
+.comparison-table tbody tr:hover {background: var(--bg2);}
+.metric-bar-container {display: flex;align-items: center;gap: 10px;}
+.metric-bar {flex: 1;height: 6px;background: var(--bg2);border-radius: 3px;overflow: hidden;position: relative;}
+.metric-bar-fill {height: 100%;background: var(--gold);border-radius: 3px;transition: width 0.3s ease;}
+.metric-bar-value {min-width: 45px;text-align: right;font-family: var(--mono);font-size: 12px;color: var(--text0);}
+.loading-state {display: flex;flex-direction: column;align-items: center;justify-content: center;padding: 60px 20px;color: var(--text2);font-family: var(--mono);}
+.loading-spinner {width: 40px;height: 40px;border: 3px solid var(--bg2);border-top-color: var(--gold);border-radius: 50%;animation: spin 1s linear infinite;margin-bottom: 16px;}
+@keyframes spin {to { transform: rotate(360deg); }}
+
+.empty-state {text-align: center;padding: 60px 20px;color: var(--text2);font-family: var(--mono);}
+.empty-state-icon {font-size: 48px;margin-bottom: 16px;opacity: 0.3;}
+.empty-state-text {font-size: 14px;margin-bottom: 24px;}
+.eval-meta {display: flex;gap: 24px;margin-top: 32px;padding: 16px;background: var(--bg2);border-radius: 8px;font-size: 11px;color: var(--text2);font-family: var(--mono);}
+.eval-meta-item {display: flex;align-items: center;gap: 6px;}
+.eval-meta-item svg {width: 12px;height: 12px;}
+
+/* Query Editor Styles */
+.query-editor-btn {padding: 8px 16px;background: var(--bg3);border: 1px solid var(--border2);border-radius: 6px;color: var(--text1);font-size: 11px;font-family: var(--mono); cursor: pointer;transition: all 0.15s;margin-left: 12px;}
+.query-editor-btn:hover {border-color: var(--gold);color: var(--gold);}
+.modal-overlay {position: fixed;  top: 0; left: 0;  right: 0;bottom: 0; background: rgba(0, 0, 0, 0.8);display: flex;align-items: center;justify-content: center;z-index: 1000;animation: fadeIn 0.2s;}
+@keyframes fadeIn {from { opacity: 0; } to { opacity: 1; }}
+.modal-content {background: var(--bg1); border: 1px solid var(--border);border-radius: 12px; width: 90%; max-width: 900px;max-height: 85vh; overflow: hidden;display: flex;flex-direction: column;animation: slideUp 0.3s;}
+@keyframes slideUp {from { transform: translateY(20px); opacity: 0; }  to {transform: translateY(0); opacity: 1; }}
+.modal-header {padding: 20px 24px;border-bottom: 1px solid var(--border);display: flex;justify-content: space-between;align-items: center;}
+.modal-title {font-size: 16px;  font-weight: 600;color: var(--text0);}
+.modal-close {width: 28px;  height: 28px; border-radius: 6px;background: transparent;border: 1px solid var(--border);display: flex;align-items: center;justify-content: center;cursor: pointer;color: var(--text2);transition: all 0.15s;}
+.modal-close:hover {border-color: var(--text1);color: var(--text1);}
+.modal-body {flex: 1; overflow-y: auto;padding: 24px;}
+.modal-footer {padding: 16px 24px;border-top: 1px solid var(--border); display: flex;justify-content: space-between;align-items: center;}
+.query-item {background: var(--bg2);border: 1px solid var(--border);border-radius: 8px; padding: 16px;margin-bottom: 12px;}
+.query-item.negative {border-left: 3px solid #f87171;}
+.query-item.positive {border-left: 3px solid var(--green);}
+.query-header {display: flex;  justify-content: space-between;align-items: flex-start;margin-bottom: 12px;}
+.query-number {font-size: 10px; color: var(--text2);font-family: var(--mono);text-transform: uppercase;letter-spacing: 0.1em;}
+.query-actions {display: flex;gap: 6px;}
+.query-action-btn {padding: 4px 8px;background: transparent;border: 1px solid var(--border2);border-radius: 4px;color: var(--text2);font-size: 10px;font-family: var(--mono);cursor: pointer;transition: all 0.15s;}
+.query-action-btn:hover {border-color: var(--text1);color: var(--text1);}
+.query-action-btn.delete:hover {border-color: #f87171;color: #f87171;}
+.query-field {margin-bottom: 12px;}
+.query-field-label {font-size: 10px;color: var(--text2);text-transform: uppercase;letter-spacing: 0.08em;font-family: var(--mono);margin-bottom: 6px;display: block;}
+.query-textarea {width: 100%;background: var(--bg0);border: 1px solid var(--border);border-radius: 6px;padding: 10px 12px;color: var(--text0);font-size: 12px;font-family: var(--mono);resize: vertical;min-height: 50px;}
+.query-textarea:focus {outline: none;border-color: var(--gold);}
+.query-input {width: 100%;background: var(--bg0);border: 1px solid var(--border);border-radius: 6px;padding: 8px 12px;color: var(--text0);font-size: 11px;font-family: var(--mono);}
+.query-input:focus {outline: none;border-color: var(--gold);}
+.query-checkbox {display: flex;align-items: center;gap: 8px;font-size: 11px;color: var(--text1);font-family: var(--mono);}
+.query-checkbox input {width: 16px;height: 16px;cursor: pointer;}
+.add-query-btn {width: 100%;padding: 12px;background: var(--bg3);border: 1px dashed var(--border2);border-radius: 8px;color: var(--text2);font-size: 11px;font-family: var(--mono);cursor: pointer;transition: all 0.15s;display: flex;align-items: center;justify-content: center;gap: 8px;}
+.add-query-btn:hover {border-color: var(--gold);color: var(--gold);}
+.btn-primary {padding: 10px 20px;background: var(--gold);color: var(--bg0);border: none;border-radius: 6px;font-size: 12px;font-weight: 500;font-family: var(--sans);cursor: pointer;transition: all 0.15s;}
+.btn-primary:hover {background: var(--gold2);}
+.btn-secondary {padding: 10px 20px;background: transparent;color: var(--text1);border: 1px solid var(--border2);border-radius: 6px;font-size: 12px;font-family: var(--sans);cursor: pointer;transition: all 0.15s;}
+.btn-secondary:hover {border-color: var(--text0);color: var(--text0);}
+.query-stats {font-size: 11px;color: var(--text2);font-family: var(--mono);}
+
+/* ── Error state ── */
+.msg-error{font-size:12px;color:#f87171;font-family:var(--mono);font-style:italic;padding:10px 14px;background:#1a0808;border:1px solid #3a1010;border-radius:8px;max-width:80%}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sb-head">
+      <div class="sb-logo">
+        <div class="sb-icon">
+          <svg viewBox="0 0 16 16" fill="none">
+            <path d="M2 11l4-5 3 3.5 2.5-4L14 9" stroke="#e8a320" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="sb-brand">MBA Engine</div>
+          <div class="sb-sub">by Nicolás Camañes</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sb-nav">
+      <div class="nav-item active" onclick="switchNav(this)">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 11l4-5 3 3.5 2.5-4L14 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Chat Conversacional
+      </div>
+      <div class="nav-item" onclick="switchNav(this)">
+        <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+        Resultados de las evaluaciones
+      </div>
+    </nav>
+
+    <div class="sb-docs">
+      <div class="sb-label">Documentos de la sesión</div>
+      <div class="doc-list" id="doc-list">
+        <!-- populated by JS -->
+      </div>
+      <button class="upload-btn" onclick="document.getElementById('file-input').click()">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 2v10M4 6l4-4 4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 14h12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Cargar PDF
+      </button>
+      <input type="file" id="file-input" accept=".pdf" multiple onchange="uploadFiles(this)"/>
+    </div>
+
+    <div class="sb-footer">
+      <div class="footer-item">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5.5v4M8 11h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Ajustes
+      </div>
+      <div class="footer-item">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M6 6c0-1.1.9-2 2-2s2 .9 2 2c0 1.5-2 2-2 2M8 12h.01" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Soporte
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-left">
+        <span class="tb-title">Sistema de búsqueda inteligente mediante técnicas RAG aplicado a documentos sobre gestión empresarial (MBA)</span>
+        <div class="live-badge">
+          <div class="live-dot"></div>
+          Sesión Activa
+        </div>
+      </div>
+      <div class="tb-right">
+        <div class="icon-btn" title="Clear chat" onclick="clearChat()">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </div>
+        <div class="icon-btn" title="Profile">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 14c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat" id="chat">
+      <div class="msg-ai-wrap">
+        <div class="msg-ai">
+          <div class="ai-ref">
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v4l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            Sistema
+          </div>
+          <div class="ai-body">Bienvenido al <strong>MBA Insight Engine</strong>. Carga tus PDFs en el panel lateral, <strong>procésalos</strong> haciendo clic en "Procesar", y formula cualquier pregunta estratégica. El motor RAG analizará tanto la base de datos principal como tus documentos personales.</div>
+        </div>
+        <div class="msg-meta">INSIGHT ENGINE · ahora</div>
+      </div>
+    </div>
+
+    <div id="analytics-container" class="analytics-view" style="display:none;">
+      <div class="analytics-header">
+        <h2 class="analytics-title">Sistema de Evaluación RAG</h2>
+        <div style="display: flex; gap: 8px;">
+          <button class="query-editor-btn" onclick="openQueryEditor()">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="display: inline; vertical-align: middle; margin-right: 4px;">
+              <path d="M2 11l9-9 2 2-9 9H2v-2z" stroke="currentColor" stroke-width="1.2" fill="none"/>
+            </svg>
+            Editar Queries
+          </button>
+          <button class="run-eval-btn" id="run-eval-btn" onclick="runNewEvaluation()">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2v10M4 6l4-4 4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Ejecutar Nueva Evaluación
+          </button>
+        </div>
+      </div>
+      <div id="analytics-content"></div>
+    </div>
+
+    <!-- Query Editor Modal -->
+    <div id="query-editor-modal" class="modal-overlay" style="display: none;" onclick="if(event.target === this) closeQueryEditor()">
+      <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title">Editor de Queries de Evaluación</h3>
+          <button class="modal-close" onclick="closeQueryEditor()">×</button>
+        </div>
+        <div class="modal-body" id="query-editor-body">
+          <!-- Populated by JS -->
+        </div>
+        <div class="modal-footer">
+          <div class="query-stats" id="query-stats"></div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-secondary" onclick="closeQueryEditor()">Cancelar</button>
+            <button class="btn-primary" onclick="saveAndRunEvaluation()">Guardar y Ejecutar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-wrap">
+        <div class="attach-btn" onclick="document.getElementById('file-input').click()" title="Adjuntar PDF">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M13 7L8 12a4 4 0 01-5.7-5.6L8 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </div>
+        <input class="chat-input" id="chat-input"
+               placeholder="Formula tu pregunta estratégica..."
+               onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"/>
+        <button class="send-btn" id="send-btn" onclick="send()" title="Enviar">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M14 2L2 7l5 2 2 5 5-12z" fill="white"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="footer-bar">Máster en Ciencia de Datos, Universitat de València</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:8000';  // Cambiar según tu configuración
+
+// ── Session Management ──────────────────────────────────────────────────────
+let sessionId = localStorage.getItem('mba_session_id');
+if (!sessionId) {
+  sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  localStorage.setItem('mba_session_id', sessionId);
+}
+console.log('Session ID:', sessionId);
+
+// ── State ───────────────────────────────────────────────────────────────────
+let uploadedFiles = [];  // Archivos subidos pendientes de procesar
+let processedDocs = {};  // Documentos procesados en la BD vectorial
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+function now() {
+  return new Date().toLocaleTimeString('es', {hour:'2-digit', minute:'2-digit'});
+}
+function showToast(msg, ms=2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), ms);
+}
+function scrollBottom() {
+  const c = document.getElementById('chat');
+  c.scrollTop = c.scrollHeight;
+}
+
+// ── Documents Management ────────────────────────────────────────────────────
+async function loadSessionDocs() {
+  try {
+    const r = await fetch(`${API}/api/session/${sessionId}/documents`);
+    const data = await r.json();
+    if (data.success) {
+      processedDocs = data.documents || {};
+    }
+  } catch (err) {
+    console.error('Error cargando documentos de sesión:', err);
+  }
+  renderDocs();
+}
+
+function renderDocs() {
+  const list = document.getElementById('doc-list');
+  
+  const allFiles = [
+    ...uploadedFiles.map(f => ({...f, type: 'uploaded'})),
+    ...Object.entries(processedDocs).map(([name, info]) => ({
+      filename: name,
+      chunks: info.chunks,
+      timestamp: info.timestamp,
+      processed: true,
+      type: 'processed'
+    }))
+  ];
+
+  if (allFiles.length === 0) {
+    list.innerHTML = '<div style="font-size:10px;color:var(--text2);font-family:var(--mono);padding:4px 8px">Sin documentos cargados</div>';
+    return;
+  }
+
+  list.innerHTML = allFiles.map(file => {
+    const isProcessed = file.processed;
+    const isUploading = file.uploading;
+    
+    return `
+      <div class="doc-item ${isProcessed ? 'processed' : ''} ${isUploading ? 'uploading' : ''}">
+        <div class="doc-badge">
+          <span>${isUploading ? '...' : (isProcessed ? '✓' : 'PDF')}</span>
+        </div>
+        <div class="doc-name" title="${file.filename}">${file.filename}</div>
+        <div class="doc-actions">
+          ${!isProcessed && !isUploading ? `
+            <button class="doc-btn process" onclick="processDocument('${file.filename}')">
+              Procesar
+            </button>
+          ` : ''}
+          ${isProcessed ? `
+            <button class="doc-btn delete" onclick="deleteDocument('${file.filename}')">
+              ×
+            </button>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function uploadFiles(input) {
+  const files = Array.from(input.files);
+  if (files.length === 0) return;
+
+  for (const file of files) {
+    // Añadir a la lista como "uploading"
+    uploadedFiles.push({
+      filename: file.name,
+      uploading: true,
+      processed: false
+    });
+    renderDocs();
+
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('session_id', sessionId);
+
+    try {
+      const r = await fetch(`${API}/api/upload`, {
+        method: 'POST',
+        body: fd
+      });
+      
+      const data = await r.json();
+      
+      if (data.success) {
+        // Actualizar estado: ya no está uploading
+        const idx = uploadedFiles.findIndex(f => f.filename === file.name);
+        if (idx !== -1) {
+          uploadedFiles[idx].uploading = false;
+          uploadedFiles[idx].file_path = data.file_path;
+        }
+        showToast(`"${file.name}" subido correctamente`);
+      } else {
+        uploadedFiles = uploadedFiles.filter(f => f.filename !== file.name);
+        showToast(`Error al subir "${file.name}"`);
+      }
+    } catch (err) {
+      console.error('Error uploading:', err);
+      uploadedFiles = uploadedFiles.filter(f => f.filename !== file.name);
+      showToast('Error de conexión al subir archivo');
+    }
+    
+    renderDocs();
+  }
+  
+  input.value = '';
+}
+
+async function processDocument(filename) {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'Procesando...';
+
+  try {
+    const r = await fetch(`${API}/api/process-document`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        session_id: sessionId,
+        filename: filename
+      })
+    });
+
+    const data = await r.json();
+    
+    if (data.success) {
+      // Eliminar de uploadedFiles y recargar processedDocs
+      uploadedFiles = uploadedFiles.filter(f => f.filename !== filename);
+      await loadSessionDocs();
+      showToast(`✓ ${filename} procesado (${data.chunks_count} fragmentos)`);
+    } else {
+      showToast(`Error: ${data.message}`);
+      btn.disabled = false;
+      btn.textContent = 'Procesar';
+    }
+  } catch (err) {
+    console.error('Error processing:', err);
+    showToast('Error al procesar documento');
+    btn.disabled = false;
+    btn.textContent = 'Procesar';
+  }
+}
+
+async function deleteDocument(filename) {
+  if (!confirm(`¿Eliminar "${filename}" de la base de datos?`)) return;
+
+  try {
+    const r = await fetch(
+      `${API}/api/session/${sessionId}/document/${encodeURIComponent(filename)}`,
+      {method: 'DELETE'}
+    );
+    
+    const data = await r.json();
+    
+    if (data.success) {
+      await loadSessionDocs();
+      showToast(`✓ "${filename}" eliminado`);
+    } else {
+      showToast(`Error: ${data.message}`);
+    }
+  } catch (err) {
+    console.error('Error deleting:', err);
+    showToast('Error al eliminar documento');
+  }
+}
+
+// ── Nav ─────────────────────────────────────────────────────────────────────
+function switchNav(el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  
+  const text = el.textContent.trim();
+  
+  // Mostrar/ocultar secciones
+  const chat = document.getElementById('chat');
+  const inputArea = document.querySelector('.input-area');
+  const footerBar = document.querySelector('.footer-bar');
+  const analytics = document.getElementById('analytics-container');
+  
+  if (text.includes('Resultados')) {
+    chat.style.display = 'none';
+    inputArea.style.display = 'none';
+    footerBar.style.display = 'none';
+    if (analytics) {
+      analytics.style.display = 'flex';
+      loadAnalytics();
+    }
+  } else {
+    chat.style.display = 'flex';
+    inputArea.style.display = 'block';
+    footerBar.style.display = 'block';
+    if (analytics) {
+      analytics.style.display = 'none';
+    }
+  }
+}
+
+// ── Chat ────────────────────────────────────────────────────────────────────
+let busy = false;
+
+function appendUser(text) {
+  const chat = document.getElementById('chat');
+  const wrap = document.createElement('div');
+  wrap.style.display = 'flex';
+  wrap.style.flexDirection = 'column';
+  wrap.style.alignItems = 'flex-end';
+  wrap.innerHTML = `
+    <div class="msg-user-wrap"><div class="msg-user">${escHtml(text)}</div></div>
+    <div class="msg-meta">TÚ · ${now()}</div>`;
+  chat.appendChild(wrap);
+  scrollBottom();
+}
+
+function showTyping() {
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.id = 'typing';
+  el.className = 'msg-ai-wrap';
+  el.innerHTML = `<div class="typing"><span></span><span></span><span></span></div>`;
+  chat.appendChild(el);
+  scrollBottom();
+  return el;
+}
+
+function removeTyping() {
+  document.getElementById('typing')?.remove();
+}
+
+function appendAI(answer, sources=[]) {
+  const chat = document.getElementById('chat');
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-ai-wrap';
+
+  // Detect insight
+  const insightMatch = answer.match(/["«]([^"»]{30,})[»"]/);
+  let body = answer;
+  let insightHtml = '';
+  if (insightMatch) {
+    const quote = insightMatch[0];
+    const inner = insightMatch[1];
+    body = answer.replace(quote, '___INSIGHT___');
+    insightHtml = `
+      <div class="insight-box">
+        <div class="insight-label">Key Strategic Insight</div>
+        <div class="insight-text">"${escHtml(inner)}"</div>
+      </div>`;
+  }
+  const bodyHtml = escHtml(body).replace('___INSIGHT___', insightHtml);
+
+  const srcHtml = sources.length ? `
+    <div class="sources">
+      ${sources.map((s,i) => {
+        const isSessionDoc = s.is_session_doc || false;
+        const badge = isSessionDoc ? '🔵' : '📚';
+        const chipClass = isSessionDoc ? 'source-chip session-doc' : 'source-chip';
+        const displayName = s.filename || s;
+        return `
+          <div class="${chipClass}" title="${escHtml(displayName)}">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M3 3h10v10H3z" stroke="currentColor" stroke-width="1.2"/></svg>
+            ${badge} ${displayName.length > 25 ? displayName.slice(0,22)+'…' : displayName}
+          </div>`;
+      }).join('')}
+    </div>` : '';
+
+  wrap.innerHTML = `
+    <div class="msg-ai">
+      <div class="ai-ref">
+        <svg width="10" height="10" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Insight Engine · análisis RAG
+      </div>
+      <div class="ai-body">${bodyHtml}</div>
+      ${srcHtml}
+    </div>
+    <div class="msg-meta">MBA ENGINE · ${now()}</div>`;
+  chat.appendChild(wrap);
+  scrollBottom();
+}
+
+function appendError(msg) {
+  const chat = document.getElementById('chat');
+  const el = document.createElement('div');
+  el.className = 'msg-error';
+  el.textContent = '⚠ ' + msg;
+  chat.appendChild(el);
+  scrollBottom();
+}
+
+function clearChat() {
+  const chat = document.getElementById('chat');
+  chat.innerHTML = '';
+  appendAI('Chat reiniciado. ¿En qué puedo ayudarte?');
+}
+
+async function send() {
+  if (busy) return;
+  const input = document.getElementById('chat-input');
+  const question = input.value.trim();
+  if (!question) return;
+
+  busy = true;
+  input.value = '';
+  document.getElementById('send-btn').disabled = true;
+
+  appendUser(question);
+  const typing = showTyping();
+
+  try {
+    const r = await fetch(`${API}/api/chat`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        session_id: sessionId,
+        question: question,
+        use_session_docs: true
+      })
+    });
+    
+    removeTyping();
+    
+    if (!r.ok) {
+      const err = await r.json().catch(()=>({detail:'Error desconocido'}));
+      appendError(err.detail || 'Error en el servidor RAG');
+    } else {
+      const data = await r.json();
+      appendAI(data.answer, data.sources || []);
+    }
+  } catch (err) {
+    console.error('Error sending:', err);
+    removeTyping();
+    appendError('No se pudo conectar con el servidor. ¿Está corriendo uvicorn?');
+  }
+
+  busy = false;
+  document.getElementById('send-btn').disabled = false;
+  document.getElementById('chat-input').focus();
+}
+
+function escHtml(str) {
+  return str
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// ── Evaluación
+
+async function loadAnalytics() {
+  const container = document.getElementById('analytics-content');
+  const btn = document.getElementById('run-eval-btn');
+  
+  // Mostrar loading
+  container.innerHTML = `
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <div>Cargando resultados de evaluación...</div>
+    </div>
+  `;
+  try {
+    // Primero verificar el estado
+    const statusResponse = await fetch(`${API}/api/evaluate/status`);
+    const status = await statusResponse.json();
+    
+    if (status.running) {
+      btn.textContent = 'Evaluación en Ejecución...';
+      btn.disabled = true;
+      btn.classList.add('running');
+    }
+    
+    // Cargar resultados
+    const response = await fetch(`${API}/api/evaluate/results`);
+    const data = await response.json();
+    
+    if (data.success && data.has_results) {
+      renderAnalytics(data.results, data.timestamp, data.duration);
+    } else {
+      renderEmptyState();
+    }
+  } catch (err) {
+    console.error('Error loading analytics:', err);
+
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">⚠️</div>
+        <div class="empty-state-text">
+          Error al cargar los resultados
+        </div>
+        <pre style="margin-top:10px;text-align:left;white-space:pre-wrap;">
+  ${err.message}
+        </pre>
+      </div>
+    `;
+  }
+}
+
+function renderEmptyState() {
+  const container = document.getElementById('analytics-content');
+  container.innerHTML = `
+    <div class="empty-state">
+      <div class="empty-state-icon">📊</div>
+      <div class="empty-state-text">
+        No hay evaluaciones previas.<br>
+        Haz clic en "Ejecutar Nueva Evaluación" para comenzar.
+      </div>
+    </div>
+  `;
+}
+
+function renderAnalytics(results, timestamp, duration) {
+
+    const container = document.getElementById('analytics-content');
+
+    const date = new Date(timestamp);
+    const formattedDate = date.toLocaleString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    let html = `
+
+    <div class="analytics-section">
+
+        <div class="metrics-grid">
+
+            <div class="metric-card">
+                <div class="metric-label">Dataset Evaluación</div>
+                <div class="metric-value">
+                    ${results.eval_set_size.positive + results.eval_set_size.negative}
+                </div>
+                <div class="metric-sub">
+                    ${results.eval_set_size.positive} positivas,
+                    ${results.eval_set_size.negative} negativas
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">Configuraciones</div>
+                <div class="metric-value">
+                    ${results.retrieval.length}
+                </div>
+                <div class="metric-sub">
+                    Estrategias evaluadas
+                </div>
+            </div>
+
+        </div>
+
+
+        <h3 class="section-title">
+            Comparativa de Retrieval
+        </h3>
+
+        <div class="comparison-table">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Configuración</th>
+                        <th>Recall</th>
+                        <th>MRR</th>
+                        <th>MAP</th>
+                        <th>NDCG</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+    `;
+
+    results.retrieval.forEach(r => {
+
+        html += `
+
+        <tr>
+
+            <td>
+                <strong>${r.name}</strong>
+            </td>
+
+            <td>
+
+                <div class="metric-bar-container">
+
+                    <div class="metric-bar">
+                        <div class="metric-bar-fill"
+                             style="width:${r.recall * 100}%">
+                        </div>
+                    </div>
+
+                    <div class="metric-bar-value">
+                        ${(r.recall * 100).toFixed(1)}%
+                    </div>
+
+                </div>
+
+            </td>
+
+            <td>
+
+                <div class="metric-bar-container">
+
+                    <div class="metric-bar">
+                        <div class="metric-bar-fill"
+                             style="width:${r.mrr * 100}%">
+                        </div>
+                    </div>
+
+                    <div class="metric-bar-value">
+                        ${r.mrr.toFixed(2)}
+                    </div>
+
+                </div>
+
+            </td>
+
+            <td>
+
+                <div class="metric-bar-container">
+
+                    <div class="metric-bar">
+                        <div class="metric-bar-fill"
+                             style="width:${r.map * 100}%">
+                        </div>
+                    </div>
+
+                    <div class="metric-bar-value">
+                        ${r.map.toFixed(2)}
+                    </div>
+
+                </div>
+
+            </td>
+
+            <td>
+
+                <div class="metric-bar-container">
+
+                    <div class="metric-bar">
+                        <div class="metric-bar-fill"
+                             style="width:${r.ndcg * 100}%">
+                        </div>
+                    </div>
+
+                    <div class="metric-bar-value">
+                        ${r.ndcg.toFixed(2)}
+                    </div>
+
+                </div>
+
+            </td>
+
+        </tr>
+
+        `;
+
+    });
+
+    html += `
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        ${renderRetrievalDetails(results.retrieval)}
+
+        <h3 class="section-title">
+
+            Evaluación End-to-End
+
+        </h3>
+
+        <div class="metrics-grid">
+
+            <div class="metric-card">
+
+                <div class="metric-label">
+                    Answer Relevancy
+                </div>
+
+                <div class="metric-value">
+                    ${(results.end_to_end.answer_relevancy * 100).toFixed(1)}%
+                </div>
+
+                <div class="metric-sub">
+                    ${results.end_to_end.answer_hits}/${results.end_to_end.total_positive}
+                    respuestas relevantes
+                </div>
+
+            </div>
+
+
+            <div class="metric-card">
+
+                <div class="metric-label">
+                    Citation Rate
+                </div>
+
+                <div class="metric-value">
+                    ${(results.end_to_end.citation_rate * 100).toFixed(1)}%
+                </div>
+
+                <div class="metric-sub">
+                    ${results.end_to_end.citation_hits}/${results.end_to_end.total_positive}
+                    con citas válidas
+                </div>
+
+            </div>
+
+
+            <div class="metric-card">
+
+                <div class="metric-label">
+                    BLEU
+                </div>
+
+                <div class="metric-value">
+                    ${results.end_to_end.bleu != null ? results.end_to_end.bleu.toFixed(3) : "-"}
+                </div>
+
+                <div class="metric-sub">
+                    Similitud n-gram
+                </div>
+
+            </div>
+
+
+            <div class="metric-card">
+
+                <div class="metric-label">
+                    ROUGE-L
+                </div>
+
+                <div class="metric-value">
+                    ${results.end_to_end.rouge_l != null ? results.end_to_end.rouge_l.toFixed(3) : "-"}
+                </div>
+
+                <div class="metric-sub">
+                    Longest Common Subsequence
+                </div>
+
+            </div>
+
+
+            <div class="metric-card">
+
+                <div class="metric-label">
+                    METEOR
+                </div>
+
+                <div class="metric-value">
+                    ${results.end_to_end.meteor != null ? results.end_to_end.meteor.toFixed(3) : "-"}
+                </div>
+
+                <div class="metric-sub">
+                    Similaridad léxica
+                </div>
+
+            </div>
+
+
+            <div class="metric-card">
+
+                <div class="metric-label">
+                    Similitud Semántica
+                </div>
+
+                <div class="metric-value">
+                    ${results.end_to_end.semantic_sim != null ? results.end_to_end.semantic_sim.toFixed(3) : "-"}
+                </div>
+
+                <div class="metric-sub">
+                    Similaridad léxica
+                </div>
+
+            </div>
+
+
+            <div class="metric-card">
+
+                <div class="metric-label">
+                    Ignorance Rate
+                </div>
+
+                <div class="metric-value">
+                    ${(results.end_to_end.ignorance_rate * 100).toFixed(1)}%
+                </div>
+
+                <div class="metric-sub">
+                    ${results.end_to_end.ignorance_hits}/${results.end_to_end.total_negative}
+                    admite no saber
+                </div>
+
+            </div>
+
+        </div>
+
+        ${renderEndToEndDetails(results.end_to_end)}
+
+        <div class="eval-meta">
+
+            <div class="eval-meta-item">
+                Última ejecución: ${formattedDate}
+            </div>
+
+            <div class="eval-meta-item">
+                Duración:
+                ${duration ? duration.toFixed(1) + " s" : "N/A"}
+            </div>
+
+            <div class="eval-meta-item">
+                Respuestas de referencia:
+                ${results.end_to_end.n_with_reference}
+            </div>
+
+        </div>
+
+    </div>
+
+    `;
+
+    container.innerHTML = html;
+
+}
+
+function renderRetrievalDetails(retrieval) {
+
+    let html = `
+        <h3 class="section-title">
+            Detalle del Retrieval
+        </h3>
+    `;
+
+    retrieval.forEach(config => {
+
+        html += `
+
+        <div class="retrieval-detail">
+
+            <h4 style="margin-top:25px; margin-bottom:10px;">
+                ${config.name}
+            </h4>
+
+            <div class="comparison-table">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Query</th>
+                            <th>Resultado</th>
+                            <th>Rank</th>
+                            <th>AP</th>
+                            <th>NDCG</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+        `;
+
+        config.details_positive.forEach(d => {
+
+            html += `
+
+                <tr>
+
+                    <td>${d.query}</td>
+
+                    <td>
+                        <span style="font-weight:600;
+                                     color:${d.hit ? '#16a34a' : '#dc2626'}">
+                            ${d.status}
+                        </span>
+                    </td>
+
+                    <td>
+                        ${d.rank ?? "-"}
+                    </td>
+
+                    <td>
+                        ${d.ap.toFixed(4)}
+                    </td>
+
+                    <td>
+                        ${d.ndcg.toFixed(4)}
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+        html += `
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        `;
+
+        if (config.details_negative.length > 0) {
+
+            html += `
+
+            <h5 style="margin-top:20px;">
+                Queries negativas
+            </h5>
+
+            <div class="comparison-table">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Query</th>
+                            <th>Resultado</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+            `;
+
+            config.details_negative.forEach(d => {
+
+                html += `
+
+                    <tr>
+
+                        <td>${d.query}</td>
+
+                        <td>
+
+                            <span style="font-weight:600;
+                                         color:${d.correct ? '#16a34a' : '#dc2626'}">
+
+                                ${d.status}
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            });
+
+            html += `
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            `;
+
+        }
+
+    });
+
+    return html;
+
+}
+
+function renderEndToEndDetails(endToEnd) {
+
+    let html = `
+
+        <h3 class="section-title">
+            Detalle End-to-End
+        </h3>
+
+        <h4 style="margin-top:20px; margin-bottom:10px;">
+            Queries positivas
+        </h4>
+
+        <div class="comparison-table">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Query</th>
+                        <th>Relevante</th>
+                        <th>Citas</th>
+                        <th>BLEU</th>
+                        <th>ROUGE-L</th>
+                        <th>METEOR</th>
+                        <th>Similitud Semántica</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+    `;
+
+    endToEnd.details_positive.forEach(d => {
+
+        html += `
+
+            <tr>
+
+                <td>${d.query}</td>
+
+                <td>
+
+                    <span style="font-weight:600;
+                                 color:${d.relevant ? '#16a34a' : '#dc2626'}">
+
+                        ${d.relevant ? '✓' : '✗'}
+
+                    </span>
+
+                </td>
+
+                <td>
+
+                    <span style="font-weight:600;
+                                 color:${d.has_citations ? '#16a34a' : '#dc2626'}">
+
+                        ${d.has_citations ? '✓' : '✗'}
+
+                    </span>
+
+                </td>
+
+                <td>
+
+                    ${d.bleu != null ? d.bleu.toFixed(4) : "-"}
+
+                </td>
+
+                <td>
+
+                    ${d.rouge_l != null ? d.rouge_l.toFixed(4) : "-"}
+
+                </td>
+
+                <td>
+
+                    ${d.meteor != null ? d.meteor.toFixed(4) : "-"}
+
+                </td>
+
+                <td>
+
+                    ${d.semantic_sim != null ? d.semantic_sim.toFixed(4) : "-"}
+
+                </td>
+
+            </tr>
+
+        `;
+
+        if (d.response_preview) {
+
+            html += `
+
+                <tr>
+
+                    <td colspan="6"
+                        style="background:#fafafa;
+                               font-size:0.9em;
+                               color:#555;">
+
+                        <strong>Respuesta:</strong><br>
+
+                        ${d.response_preview}
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+
+    });
+
+    html += `
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    `;
+
+    if (endToEnd.details_negative.length > 0) {
+
+        html += `
+
+            <h4 style="margin-top:30px; margin-bottom:10px;">
+                Queries negativas
+            </h4>
+
+            <div class="comparison-table">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Query</th>
+                            <th>Resultado</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+        `;
+
+        endToEnd.details_negative.forEach(d => {
+
+            html += `
+
+                <tr>
+
+                    <td>${d.query}</td>
+
+                    <td>
+
+                        <span style="font-weight:600;
+                                     color:${d.admits_ignorance ? '#16a34a' : '#dc2626'}">
+
+                            ${d.status}
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            if (d.response_preview) {
+
+                html += `
+
+                    <tr>
+
+                        <td colspan="2"
+                            style="background:#fafafa;
+                                   font-size:0.9em;
+                                   color:#555;">
+
+                            <strong>Respuesta:</strong><br>
+
+                            ${d.response_preview}
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+
+        });
+
+        html += `
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        `;
+
+    }
+
+    return html;
+
+}
+
+async function runNewEvaluation() {
+  const btn = document.getElementById('run-eval-btn');
+  const container = document.getElementById('analytics-content');
+  
+  if (!confirm('La evaluación puede tardar varios minutos. ¿Deseas continuar?')) {
+    return;
+  }
+  
+  // Deshabilitar botón
+  btn.disabled = true;
+  btn.classList.add('running');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = `
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2" opacity="0.3"/>
+      <path d="M8 2a6 6 0 0 1 6 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+        <animateTransform attributeName="transform" type="rotate" from="0 8 8" to="360 8 8" dur="1s" repeatCount="indefinite"/>
+      </path>
+    </svg>
+    Ejecutando Evaluación...
+  `;
+  
+  // Mostrar loading en el contenido
+  container.innerHTML = `
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <div>Ejecutando evaluación completa del sistema RAG...</div>
+      <div style="margin-top: 8px; font-size: 10px;">Esto puede tardar varios minutos</div>
+    </div>
+  `;
+  
+  try {
+    const response = await fetch(`${API}/api/evaluate/run`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ verbose: false })
+    });
+
+    const raw = await response.text();
+    let data;
+
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      data = raw;
+    }
+
+    if (!response.ok) {
+      console.error("Backend error:", data);
+
+      const errorMsg =
+        data?.detail?.error ||
+        data?.detail ||
+        JSON.stringify(data, null, 2);
+
+      alert(errorMsg);
+
+      throw new Error(errorMsg);
+    }
+
+    if (!data.success) {
+      console.error("Evaluation failed:", data);
+      alert(JSON.stringify(data, null, 2));
+      throw new Error("Error en evaluación");
+    }
+
+    showToast('✓ Evaluación completada correctamente');
+    renderAnalytics(data.results, data.timestamp, data.duration);
+
+  } catch (err) {
+    console.error("Frontend error:", err);
+    alert(err.message);
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('running');
+    btn.innerHTML = originalText;
+  }
+}
+
+// ── Query Editor ──────────────────────────────────────────────────────────────
+let currentQueries = [];
+
+async function openQueryEditor() {
+  const modal = document.getElementById('query-editor-modal');
+  const body = document.getElementById('query-editor-body');
+  
+  // Cargar queries del servidor
+  try {
+    const response = await fetch(`${API}/api/evaluate/queries`);
+    const data = await response.json();
+    
+    if (data.success) {
+      currentQueries = data.queries;
+      renderQueryEditor();
+      modal.style.display = 'flex';
+    }
+  } catch (err) {
+    console.error('Error loading queries:', err);
+    showToast('Error al cargar las queries');
+  }
+}
+
+function closeQueryEditor() {
+  const modal = document.getElementById('query-editor-modal');
+  modal.style.display = 'none';
+}
+
+function renderQueryEditor() {
+  const body = document.getElementById('query-editor-body');
+  
+  let html = '';
+  
+  currentQueries.forEach((query, index) => {
+    const type = query.is_negative ? 'negative' : 'positive';
+    const typeLabel = query.is_negative ? 'Negativa' : 'Positiva';
+    
+    html += `
+      <div class="query-item ${type}">
+        <div class="query-header">
+          <div class="query-number">Query ${index + 1} · ${typeLabel}</div>
+          <div class="query-actions">
+            <button class="query-action-btn delete" onclick="deleteQuery(${index})">Eliminar</button>
+          </div>
+        </div>
+        
+        <div class="query-field">
+          <label class="query-field-label">Pregunta</label>
+          <textarea class="query-textarea" 
+                    onchange="updateQuery(${index}, 'q', this.value)"
+                    placeholder="Escribe la pregunta de evaluación...">${escHtml(query.q)}</textarea>
+        </div>
+        
+        <div class="query-field">
+          <label class="query-field-label">Keywords de Retrieval (separadas por comas)</label>
+          <input class="query-input" 
+                 type="text"
+                 value="${query.keywords.join(', ')}"
+                 onchange="updateQuery(${index}, 'keywords', this.value.split(',').map(k => k.trim()).filter(k => k))"
+                 placeholder="ej: estrategia, planificación, gestión">
+        </div>
+        
+        <div class="query-field">
+          <label class="query-field-label">Keywords de Respuesta (separadas por comas)</label>
+          <input class="query-input" 
+                 type="text"
+                 value="${query.answer_keywords.join(', ')}"
+                 onchange="updateQuery(${index}, 'answer_keywords', this.value.split(',').map(k => k.trim()).filter(k => k))"
+                 placeholder="ej: objetivo, plan, proceso">
+        </div>
+
+        ${!query.is_negative ? `
+          <div class="query-field">
+            <label class="query-field-label">Respuesta de Referencia (para BLEU / ROUGE-L / METEOR/ Similitud Semántica)</label>
+            <textarea class="query-textarea"
+                      onchange="updateQuery(${index}, 'reference_answer', this.value)"
+                      placeholder="Escribe una respuesta ideal de referencia para calcular las métricas de texto..."
+                      style="min-height: 70px;">${escHtml(query.reference_answer || '')}</textarea>
+          </div>
+        ` : ''}
+        
+        <div class="query-field">
+          <label class="query-checkbox">
+            <input type="checkbox" 
+                   ${query.is_negative ? 'checked' : ''}
+                   onchange="updateQuery(${index}, 'is_negative', this.checked)">
+            Query negativa (el sistema NO debe tener información)
+          </label>
+        </div>
+      </div>
+    `;
+  });
+  
+  html += `
+    <button class="add-query-btn" onclick="addNewQuery()">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      Añadir Nueva Query
+    </button>
+  `;
+  
+  body.innerHTML = html;
+  updateQueryStats();
+}
+
+function updateQuery(index, field, value) {
+  currentQueries[index][field] = value;
+  updateQueryStats();
+}
+
+function deleteQuery(index) {
+  if (confirm('¿Eliminar esta query?')) {
+    currentQueries.splice(index, 1);
+    renderQueryEditor();
+  }
+}
+
+function addNewQuery() {
+  currentQueries.push({
+    q: "",
+    keywords: [],
+    answer_keywords: [],
+    reference_answer: "",
+    is_negative: false
+  });
+  renderQueryEditor();
+}
+
+function updateQueryStats() {
+  const stats = document.getElementById('query-stats');
+  const positive = currentQueries.filter(q => !q.is_negative).length;
+  const negative = currentQueries.filter(q => q.is_negative).length;
+  stats.textContent = `${currentQueries.length} queries total (${positive} positivas, ${negative} negativas)`;
+}
+
+async function saveAndRunEvaluation() {
+  // Validar que haya queries
+  if (currentQueries.length === 0) {
+    alert('Debes tener al menos una query');
+    return;
+  }
+  
+  // Validar que todas tengan pregunta
+  const invalid = currentQueries.filter(q => !q.q.trim());
+  if (invalid.length > 0) {
+    alert('Todas las queries deben tener una pregunta');
+    return;
+  }
+  
+  closeQueryEditor();
+  
+  // Ejecutar evaluación con las queries personalizadas
+  const btn = document.getElementById('run-eval-btn');
+  const container = document.getElementById('analytics-content');
+  
+  if (!confirm(`Se ejecutará la evaluación con ${currentQueries.length} queries personalizadas. Esto puede tardar varios minutos. ¿Continuar?`)) {
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.classList.add('running');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = `
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2" opacity="0.3"/>
+      <path d="M8 2a6 6 0 0 1 6 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+        <animateTransform attributeName="transform" type="rotate" from="0 8 8" to="360 8 8" dur="1s" repeatCount="indefinite"/>
+      </path>
+    </svg>
+    Ejecutando Evaluación...
+  `;
+  
+  container.innerHTML = `
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <div>Ejecutando evaluación con ${currentQueries.length} queries personalizadas...</div>
+      <div style="margin-top: 8px; font-size: 10px;">Esto puede tardar varios minutos</div>
+    </div>
+  `;
+  
+  try {
+    const response = await fetch(`${API}/api/evaluate/run`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ 
+        verbose: true,
+        custom_queries: currentQueries
+      })
+    });
+
+    const raw = await response.text();
+    let data;
+
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      data = raw;
+    }
+
+    if (!response.ok) {
+      console.error("Backend error:", data);
+      const errorMsg = data?.detail?.error || data?.detail || JSON.stringify(data, null, 2);
+      alert(errorMsg);
+      throw new Error(errorMsg);
+    }
+
+    if (!data.success) {
+      console.error("Evaluation failed:", data);
+      alert(JSON.stringify(data, null, 2));
+      throw new Error("Error en evaluación");
+    }
+
+    showToast('✓ Evaluación completada correctamente');
+    renderAnalytics(data.results, data.timestamp, data.duration);
+
+  } catch (err) {
+    console.error("Frontend error:", err);
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">⚠️</div>
+        <div class="empty-state-text">Error al ejecutar la evaluación</div>
+      </div>
+    `;
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('running');
+    btn.innerHTML = originalText;
+  }
+}
+
+// ── Init ────────────────────────────────────────────────────────────────────
+loadSessionDocs();
+document.getElementById('chat-input').focus();
+</script>
+</body>
+</html>
