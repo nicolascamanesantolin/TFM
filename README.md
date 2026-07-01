@@ -25,9 +25,13 @@ rendimiento consistente tanto en recuperación como en el proceso completo.
 ## Estructura
 
 mba-insight-engine/
+
 |-- frontend/
+
 |   \-- index.html               # Interfaz de usuario
+
 |-- rag/
+
 |   |-- __init__.py   
 |   |-- chains.py                # Orquestación del pipeline
 |   |-- evaluation.py            # Sistema de evaluación
