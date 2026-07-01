@@ -24,24 +24,31 @@ rendimiento consistente tanto en recuperación como en el proceso completo.
 
 ## Estructura
 
-mba-insight-engine/ \n
-
+mba-insight-engine/
 |-- frontend/
-
 |   \-- index.html               # Interfaz de usuario
 
 |-- rag/
 
 |   |-- __init__.py   
 |   |-- chains.py                # Orquestación del pipeline
+
 |   |-- evaluation.py            # Sistema de evaluación
+
 |   |-- multiquery.py            # Expansión de consultas alternativas
+
 |   |-- reranker.py              # Reordenamiento con cross-encoders
+
 |   \-- retriever.py             # Estrategias de recuperación de información
+
 |-- chroma_mba_business_es/      # Base de datos vectorial principal
+
 |-- session_vectordbs/           # Bases de datos vectoriales por sesión
+
 |-- user_uploads/                # Archivos subidos por usuarios
+
 |-- document_processor.py        # Gestión de sesiones y documentos de usuario
+
 |-- evaluation_results.json
 |-- ingestion.py                 # Pipeline de indexación de documentos base
 |-- main.py                      # Servidor FastAPI y coordinador general
