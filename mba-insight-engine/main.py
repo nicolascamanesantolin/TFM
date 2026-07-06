@@ -48,7 +48,6 @@ embeddings = OllamaEmbeddings(
 
 session_manager = SessionManager(embeddings)
 
-# ── Lazy-load RAG components once at startup ───────────────────────────────────
 @app.on_event("startup")
 def startup():
     global embeddings, vectordb, vector_retriever, bm25, llm, reranker, mq_chain
@@ -63,7 +62,6 @@ def startup():
     reranker  = load_reranker()
     mq_chain  = build_multi_query_chain(llm)
 
-# ── Schemas ────────────────────────────────────────────────────────────────────
 class AskRequest(BaseModel):
     question: str
 
@@ -84,7 +82,7 @@ class EvalRequest(BaseModel):
     verbose: bool = False
     custom_queries: list | None = None
 
-# ── Endpoints ──────────────────────────────────────────────────────────────────
+# Endpoints
 UPLOAD_DIR = "uploaded_docs"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -121,7 +119,6 @@ async def upload_document(file: UploadFile = File(...)):
     dest = os.path.join(UPLOAD_DIR, file.filename)
     with open(dest, "wb") as f:
         shutil.copyfileobj(file.file, f)
-    # TODO: re-index the new file into vectordb / bm25 here
     return {"filename": file.filename, "status": "uploaded"}
 
 @app.get("/documents")
@@ -212,64 +209,12 @@ async def delete_document(session_id: str, filename: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
-# Modificar el endpoint de chat para incluir documentos de sesión
-# @app.post("/api/chat")
-# async def chat(request: QueryRequest):
-#     """Procesa una pregunta del usuario usando RAG híbrido."""
-#     try:
-#         # Recuperar de la BD principal
-#         main_retriever = vectordb.as_retriever(search_kwargs={"k": 3})
-#         main_docs = main_retriever.invoke(request.question)
-        
-#         # Si se solicita, recuperar también de documentos de sesión
-#         session_docs = []
-#         if request.use_session_docs and request.session_id:
-#             processor = session_manager.get_or_create_session(request.session_id)
-#             session_docs = processor.query(request.question, k=2)
-        
-#         # Combinar documentos
-#         all_docs = main_docs + session_docs
-        
-#         # Generar contexto
-#         context = "\n\n".join([
-#             f"[Fuente: {doc.metadata.get('original_filename', doc.metadata.get('source', 'Desconocida'))}]\n{doc.page_content}"
-#             for doc in all_docs
-#         ])
-        
-#         # Generar respuesta con el LLM
-#         prompt = f"""Contexto de documentos MBA:
-# {context}
-
-# Pregunta: {request.question}
-
-# Respuesta:"""
-        
-#         response = llm.invoke(prompt)
-        
-#         return {
-#             "success": True,
-#             "answer": response,
-#             "sources": [
-#                 {
-#                     "filename": doc.metadata.get('original_filename', doc.metadata.get('source', 'Desconocida')),
-#                     "page": doc.metadata.get('page', '?'),
-#                     "is_session_doc": 'session_id' in doc.metadata
-#                 }
-#                 for doc in all_docs
-#             ]
-#         }
-    
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
 @app.post("/api/chat")
 async def chat(request: QueryRequest):
     """
     Endpoint de chat con soporte completo para documentos de sesión.
     
     Procesa consultas usando BD principal + documentos del usuario a través del MISMO pipeline RAG unificado que /ask, asegurando consistencia en arquitectura y calidad de respuestas.
-    
     """
     # VALIDACIÓN INICIAL
     if not request.question.strip():raise HTTPException(status_code=400, detail="Question cannot be empty.")
@@ -344,8 +289,6 @@ async def chat(request: QueryRequest):
                 "timestamp": datetime.now().isoformat()
             }
         }
-        
-        #print(f"{'='*70}\n")
         
         return response
     
@@ -541,6 +484,6 @@ async def run_evaluation_async(request: EvalRequest):
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
-# ── Static assets (CSS / JS if you split them later) ──────────────────────────
+# Static assets
 if os.path.isdir("frontend/static"):
     app.mount("/static", StaticFiles(directory="frontend/static"), name="static")

@@ -5,11 +5,6 @@ from langchain_chroma import Chroma
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_experimental.text_splitter import SemanticChunker
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-# ...resto de imports (PyPDFLoader, SemanticChunker, etc.)
-
-# Pega aquí: load_pdf(), semantic_chunking(),
-#             hybrid_chunking(), print_chunk_stats(), main_chunking()
-
 
 # Funciones auxiliares para el chunking
 
@@ -23,11 +18,6 @@ def load_pdf(pdf_path: str):
 def semantic_chunking(documents, embeddings_model):  # => No se usa (se usa hybrid chunking)
     """
     Aplica semantic chunking usando SemanticChunker de LangChain.
-    
-    Breakpoint types:
-    - "percentile": divide cuando la diferencia de similitud supera el percentil X (default 95)
-    - "standard_deviation": divide cuando supera X desviaciones estándar
-    - "interquartile": usa IQR para detectar cambios semánticos
     """
     text_splitter = SemanticChunker(
         embeddings=embeddings_model,
@@ -39,10 +29,7 @@ def semantic_chunking(documents, embeddings_model):  # => No se usa (se usa hybr
     chunks = text_splitter.create_documents([full_text])
     
     print(f"Chunks generados: {len(chunks)}")
-    # for i, chunk in enumerate(chunks[:3]):  # Preview primeros 3
-    #     print(f"\n--- Chunk {i+1} ({len(chunk.page_content)} chars) ---")
-    #     print(chunk.page_content[:200] + "...")
-    
+
     return chunks
 
 def print_chunk_stats(chunks):
@@ -151,16 +138,11 @@ if __name__ == "__main__":
     folder_path = "MBA Documents ES/"
     persist_dir = "chroma_mba_business_es"
 
-    embeddings = OllamaEmbeddings(
-        model="nomic-embed-text", base_url="http://localhost:11434"
-    )
+    embeddings = OllamaEmbeddings(model="nomic-embed-text", base_url="http://localhost:11434")
 
     all_chunks = main_chunking(folder_path, embeddings)
 
-    ids = [
-        f"{Path(str(d.metadata.get('source','unknown'))).stem}::p{d.metadata.get('page','?')}::c{i}"
-        for i, d in enumerate(all_chunks)
-    ]
+    ids = [f"{Path(str(d.metadata.get('source','unknown'))).stem}::p{d.metadata.get('page','?')}::c{i}" for i, d in enumerate(all_chunks)]
 
     vectordb = Chroma.from_documents(
         documents=all_chunks,

@@ -12,7 +12,6 @@ class EvalQuery:
     is_negative: bool = False
 
 EVAL_SET: list[EvalQuery] = [
-    # ── Administración y gestión ──────────────────────────────────────────
     EvalQuery(
         q="¿Qué es la administración y cuáles son sus funciones básicas?",
         keywords=["administración", "planificación", "organización", "dirección", "control"],

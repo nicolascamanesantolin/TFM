@@ -1,7 +1,6 @@
 # document_processor.py
 """
-Módulo para procesar documentos subidos por usuarios y almacenarlos 
-en bases de datos vectoriales específicas de sesión.
+Módulo para procesar documentos subidos por usuarios y almacenarlos en bases de datos vectoriales específicas de sesión.
 """
 
 from pathlib import Path

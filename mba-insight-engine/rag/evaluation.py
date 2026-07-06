@@ -1,30 +1,6 @@
 # rag/evaluation.py
 """
 Sistema de evaluación del pipeline RAG.
-Incluye métricas de retrieval (Recall@k, MRR, MAP, NDCG)
-y métricas de generación end-to-end (BLEU, ROUGE-L, METEOR, Citation Rate,
-Ignorance Rate).
- 
-DATASET
--------
-El dataset por defecto está en EVAL_SET (al final de este módulo).
-Para ampliar o sustituirlo sin tocar el código, crea un fichero JSON
-con la siguiente estructura y pásalo a las funciones con el parámetro
-`eval_set`:
- 
-    [
-      {
-        "q": "¿Qué es la administración?",
-        "keywords": ["administración", "planificación"],
-        "answer_keywords": ["función", "organizar"],
-        "reference_answer": "La administración es el proceso de planificar...",
-        "is_negative": false
-      },
-      ...
-    ]
- 
-`reference_answer` es opcional pero necesario para que BLEU/ROUGE/METEOR
-sean significativos. Las queries negativas no necesitan `reference_answer`.
 """
  
 from __future__ import annotations
@@ -38,11 +14,6 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
  
 from langchain_core.documents import Document
-#from functools import partial
- 
-# ---------------------------------------------------------------------------
-# Modelo de datos
-# ---------------------------------------------------------------------------
  
 @dataclass
 class EvalQuery:
@@ -68,10 +39,7 @@ def load_eval_set(path: str | Path) -> list[EvalQuery]:
         for item in raw
     ]
  
- 
-# ---------------------------------------------------------------------------
 # Utilidades de texto
-# ---------------------------------------------------------------------------
  
 def _tokenize(text: str) -> list[str]:
     """Tokenización simple multilenguaje (minúsculas + split sobre no-alfa)."""
@@ -82,9 +50,7 @@ def _ngrams(tokens: list[str], n: int) -> list[tuple]:
     return [tuple(tokens[i:i+n]) for i in range(len(tokens) - n + 1)]
  
  
-# ---------------------------------------------------------------------------
 # Métricas de retrieval
-# ---------------------------------------------------------------------------
  
 def _is_hit(doc: Document, ev: EvalQuery) -> bool:
     """Comprueba si un documento contiene alguna keyword de la query."""
@@ -276,10 +242,7 @@ def semantic_similarity(hypothesis: str, reference: str, embeddings_model) -> fl
         return 0.0
     return float(np.dot(h, r) / (norm_h * norm_r))
  
- 
-# ---------------------------------------------------------------------------
 # Evaluación de retrieval
-# ---------------------------------------------------------------------------
  
 def eval_retrieval(
     name: str,
@@ -290,13 +253,6 @@ def eval_retrieval(
 ) -> dict[str, Any]:
     """
     Evalúa el componente de recuperación.
- 
-    Métricas:
-      - Recall@k   : fracción de queries positivas con ≥1 doc relevante en top-k
-      - MRR        : Mean Reciprocal Rank
-      - MAP        : Mean Average Precision
-      - NDCG@k     : Normalized Discounted Cumulative Gain (relevancia binaria)
-      - Specificity: fracción de queries negativas sin ningún hit (true negatives)
     """
     if eval_set is None:
         eval_set = EVAL_SET
@@ -482,10 +438,7 @@ def eval_full(ask_fn: Callable, eval_set: list[EvalQuery] | None = None, verbose
         "details_negative": details_negative if verbose else [],
     }
  
- 
-# ---------------------------------------------------------------------------
 # Orquestador
-# ---------------------------------------------------------------------------
  
 def run_full_eval(
     retrieval_configs: list[dict[str, Any]],
